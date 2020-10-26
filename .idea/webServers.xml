@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="e6f39af8-781b-4bbb-a52d-7629f7ff7092" name="jchen" url="http://202.120.95.55">
+        <fileTransfer rootFolder="/home/jchen/zuzhiang/project/" accessType="SFTP" host="202.120.95.55" port="22" sshConfigId="d616c731-caa7-4f1c-bae5-95866a446303" sshConfig="jchen">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

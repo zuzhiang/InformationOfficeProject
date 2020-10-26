@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>添加视频</title>
+    <!-- Bootstrap core CSS -->
+    <link href="/asserts/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/asserts/css/dashboard.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 顶部导航栏 -->
+<div th:insert="~{commons/commons.html::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- 侧边栏，代码复用（复用commons/commons.html里的） -->
+        <div th:insert="~{commons/commons.html::siderbar(active='video.html')}"></div>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+            <form th:action="@{/addVideo}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>选择文件：</label>
+                    <br/>
+                    <input type="file" name="file" id="file" multiple="multiple"/>
+                </div>
+                <div class="form-group">
+                    <label>上传进度：</label>
+                    <br/>
+                    <progress id="pro" value="0"></progress>
+                </div>
+                <div class="form-group">
+                    <label>任课教师：</label>
+                    <input name="teacher" class="form-control" placeholder="请输入任课教师">
+                </div>
+                <div class="form-group">
+                    <label>上课地点：</label>
+                    <input name="place" class="form-control" placeholder="请输入上课地点">
+                </div>
+                <div class="form-group">
+                    <label>上课日期：</label>
+                    <br/>
+                    <input name="courseDate" type="datetime-local" value="2020-01-01T00:00:00"/>
+                </div>
+                <button type="submit" class="btn btn-primary" onclick="readBinary();">添加</button>
+            </form>
+
+            <!-- 上传文件进度条 -->
+            <script type="text/javascript">
+                var reader = null;
+                if (FileReader) {
+                    reader = new FileReader();
+                } else {
+                    alert("ERROR!");
+                }
+                var readBinary = function () {
+                    reader.readAsBinaryString(document.getElementById("file").files[0]);
+                    var pro = document.getElementById("pro");
+                    pro.max = document.getElementById("file").files[0].size;
+                    reader.onprogress = function (evt) {
+                        pro.value = evt.loaded;
+                    }
+                }
+            </script>
+
+            <script type="text/javascript" th:inline="javascript">
+                // th:inline="javascript" 必须写
+                onload = function () {
+                    var msg = [[${addVideoState}]]; //官方写法
+                    if (msg != null) {
+                        alert(msg)
+                    }
+                };
+            </script>
+
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript" src="/asserts/js/jquery-3.2.1.slim.min.js"></script>
+<script type="text/javascript" src="/asserts/js/popper.min.js"></script>
+<script type="text/javascript" src="/asserts/js/bootstrap.min.js"></script>
+
+ Icons
+<script type="text/javascript" src="/asserts/js/feather.min.js"></script>
+<script>
+
+    feather.replace()
+</script>
+
+<!-- Graphs -->
+<script type="text/javascript" src="/asserts/js/Chart.min.js"></script>
+<script>
+    var ctx = document.getElementById("myChart");
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            datasets: [{
+                data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
+                lineTension: 0,
+                backgroundColor: 'transparent',
+                borderColor: '#007bff',
+                borderWidth: 4,
+                pointBackgroundColor: '#007bff'
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: false
+                    }
+                }]
+            },
+            legend: {
+                display: false,
+            }
+        }
+    });
+</script>
+
+</body>
+
+</html>

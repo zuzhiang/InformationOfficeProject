@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>用户登录</title>
+    <!-- Bootstrap core CSS -->
+    <link href="/asserts/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/asserts/css/signin.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/favicon.ico"/>
+</head>
+
+<body class="text-center">
+<form class="form-signin" th:action="@{/toLogin}" method="post">
+    <img class="mb-4" src="/asserts/img/logo.jpg" alt="" width="72" height="72">
+    <h1 class="h3 mb-3 font-weight-normal" th:text="#{login.tip}">Please sign in</h1>
+    <!-- 如果msg为空则不显示消息 -->
+    <p style="color: red" th:if="${param.error}">用户名或密码错误，请重新输入！</p>
+    <input type="text" name="username" class="form-control" th:placeholder="#{login.username}" required="" autofocus="">
+    <input type="password" name="password" class="form-control" th:placeholder="#{login.password}" required="">
+    <div class="checkbox mb-3">
+        <label>
+            <input type="checkbox" name="remember"> [[#{login.remember}]]
+        </label>
+    </div>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">[[#{login.btn}]]</button>
+    <p class="mt-5 mb-3 text-muted">© 2020-2021</p>
+    <!-- 链接用@{} -->
+    <a class="btn btn-sm" th:href="@{/login(language='zh_CN')}">中文</a>
+    <a class="btn btn-sm" th:href="@{/login(language='en_US')}">English</a>
+</form>
+
+</body>
+
+</html>

@@ -1,0 +1,34 @@
+# 视频的存储根路径
+videoPath: /home/jchen/zuzhiang/videos
+imagePath: /home/jchen/zuzhiang/results
+objPath: /home/jchen/zuzhiang/results/img
+posePath: /home/jchen/zuzhiang/results/pose
+facePath: /home/jchen/zuzhiang/results/face
+returnPath: /home/jchen/zuzhiang/results/return
+txtPath: /home/jchen/zuzhiang/results/txt
+
+spring:
+  # 连接数据库的配置
+  datasource:
+    username: root
+    password: classEcnu123
+    url: jdbc:mysql://172.20.4.55:3306/informationoffice?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  messages:
+    # 国际化配置文件的位置
+    basename: i18n.login
+  servlet:
+    multipart:
+      # 上传总文件的最大值
+      max-request-size: 2048MB
+      # 单个上传文件的最大值
+      max-file-size: 2048MB
+  resources:
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${imagePath},file:${videoPath}
+
+#mybatis配置
+mybatis:
+  typeAliasesPackage: com.ecnu.pojo
+  # 开启驼峰匹配
+  configuration:
+    map-underscore-to-camel-case: true
