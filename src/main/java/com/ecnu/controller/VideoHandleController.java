@@ -147,10 +147,11 @@ public class VideoHandleController {
 
         // 将视频切分成大图片，再切分为小图片
         String video_path = root_path + new String("/videos/") + index;
-        String big_img_path = root_path + new String("/results/img/") + index;//root_path+ new String("/images/")+index;
+        String big_img_path = root_path + new String("/images/") + index;//root_path+ new String("/images/")+index;
         // String small_img_path=root_path+ new String("/results/img/")+index;
-        System.out.println("\n\nVideo to images.............");
-        video2img(video_path, big_img_path, index);
+        // 直接上传图片，去除视频转图片的过程
+        //System.out.println("\n\nVideo to images.............");
+        //video2img(video_path, big_img_path, index);
 
         int i;
         String weight, txt_path, img_path, json_path;
@@ -185,14 +186,14 @@ public class VideoHandleController {
             }
             weight = weights_list[i];
             System.out.println("\n\n" + weight);
-            detect_objects(weight, in_path, out_path, txt_path);
+            detect_objects(weight, out_path, out_path, txt_path);
         }
 
         // 检测手机
         System.out.println("\n\nphone");
         //out_path=out+"/phone";
         txt_path = txt + "/phone.txt";
-        detect_phone(in_path, out_path, txt_path);
+        detect_phone(out_path, out_path, txt_path);
 
         // 计算视频的得分
         System.out.println("\n\nGet score");

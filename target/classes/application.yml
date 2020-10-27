@@ -6,6 +6,7 @@ posePath: /home/jchen/zuzhiang/results/pose
 facePath: /home/jchen/zuzhiang/results/face
 returnPath: /home/jchen/zuzhiang/results/return
 txtPath: /home/jchen/zuzhiang/results/txt
+filePath: /home/jchen/zuzhiang/images
 
 spring:
   # 连接数据库的配置

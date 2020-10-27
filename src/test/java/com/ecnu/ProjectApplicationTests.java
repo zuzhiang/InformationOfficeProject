@@ -48,7 +48,6 @@ class ProjectApplicationTests {
         Video video = new Video();
         String video_id = UUID.randomUUID().toString();
         video.setVideoId(video_id);
-        video.setPath("111");
         video.setPlace("111");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String courseDate = dateFormat.format(new Date()).replace(' ', 'T');
@@ -63,7 +62,6 @@ class ProjectApplicationTests {
         }
 
         video.setVideoId(video_id);
-        video.setPath("222");
         video.setPlace("222");
         dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         courseDate = dateFormat.format(new Date()).replace(' ', 'T');

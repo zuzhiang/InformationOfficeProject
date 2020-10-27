@@ -20,4 +20,5 @@ com\ecnu\mapper\PersonMapper.class
 com\ecnu\controller\ImageController.class
 com\ecnu\config\SpringContextConfig.class
 com\ecnu\controller\ThreadController$1.class
+com\ecnu\utils\FileUtils.class
 com\ecnu\pojo\Image.class

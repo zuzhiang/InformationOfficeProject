@@ -35,11 +35,11 @@ public interface VideoMapper {
     List<Video> selectVideoByPlace(String place);
 
     // 添加视频
-    @Insert("insert into video(video_id, path, teacher, place, course_date, upload_date, state, owner) values(#{videoId}, #{path}, #{teacher}, #{place}, #{courseDate}, #{uploadDate}, #{state}, #{owner})")
+    @Insert("insert into video(video_id, teacher, place, course_date, upload_date, state, owner) values(#{videoId}, #{teacher}, #{place}, #{courseDate}, #{uploadDate}, #{state}, #{owner})")
     void addVideo(Video video);
 
     // 更新视频信息
-    @Update("update video set video_id=#{videoId}, path=#{path}, teacher=#{teacher}, place=#{place}, course_date=#{courseDate}, upload_date=#{uploadDate}, state=#{state}, owner=#{owner} where video_id=#{videoId}")
+    @Update("update video set video_id=#{videoId}, teacher=#{teacher}, place=#{place}, course_date=#{courseDate}, upload_date=#{uploadDate}, state=#{state}, owner=#{owner} where video_id=#{videoId}")
     void updateVideo(Video video);
 
     // 删除视频

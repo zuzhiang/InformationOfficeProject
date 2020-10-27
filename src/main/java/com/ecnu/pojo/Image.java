@@ -26,6 +26,6 @@ public class Image {
     private boolean raiseHandExist; // 是否举手
     private boolean bowExist; // 是否低头
     private boolean leanExist; // 是否侧身
-    private Integer time; // 图片的时间戳，用于排序
+    private String time; // 图片的时间戳，用于排序
 
 }

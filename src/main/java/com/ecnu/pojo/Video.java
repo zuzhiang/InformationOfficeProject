@@ -16,7 +16,7 @@ import java.util.Date;
 public class Video {
 
     private String videoId; // 视频id
-    private String path; // 存储路径
+    //private String path; // 存储路
     private String teacher; // 任课教师
     private String place; // 上课地点
     private String courseDate; // 上课日期

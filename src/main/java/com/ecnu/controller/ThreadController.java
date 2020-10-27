@@ -75,7 +75,7 @@ public class ThreadController {
                 image.setRaiseHandExist((int) poseImg.get("raisehand_exist") == 1 ? true : false);
                 image.setBowExist((int) poseImg.get("bow_exist") == 1 ? true : false);
                 image.setLeanExist((int) poseImg.get("lean_exist") == 1 ? true : false);
-                image.setTime((int) objImg.get("time"));
+                image.setTime((String) objImg.get("time"));
                 imageMapper.addImage(image);
             }
         }

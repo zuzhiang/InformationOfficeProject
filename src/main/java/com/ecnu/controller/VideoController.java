@@ -6,6 +6,7 @@ import com.ecnu.mapper.UserMapper;
 import com.ecnu.mapper.VideoMapper;
 import com.ecnu.pojo.User;
 import com.ecnu.pojo.Video;
+import com.ecnu.utils.FileUtils;
 import com.ecnu.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +51,8 @@ public class VideoController {
     private String returnPath;
     @Value("${txtPath}")
     private String txtPath;
+    @Value("${filePath}")
+    private String filePath;
 
     // 查询所有视频并跳转到视频页面展示
     @RequestMapping("/video")
@@ -82,7 +85,7 @@ public class VideoController {
 
     // 跳转到更新页面，利用携带的视频id信息查出视频，并在视频更新页面显示原数据
     @RequestMapping("/toUpdateVideoPage")
-    public String toUpdateVideoPage(@RequestParam("VideoId") String videoId, Model model) {
+    public String toUpdateVideoPage(@RequestParam("videoId") String videoId, Model model) {
         // 查出原来的数据
         Video video = videoMapper.selectVideoById(videoId);
         model.addAttribute("video", video);
@@ -94,94 +97,70 @@ public class VideoController {
     // 将视频文件写入到指定位置，并将视频信息添加到数据库，并返回状态信息
     //@Async // 当前方法为异步方法
     @RequestMapping("/addVideo")
-    public String addVideo(@RequestParam("file") MultipartFile file,
+    public String addVideo(@RequestParam("file") MultipartFile[] files,
                            @RequestParam("teacher") String teacher,
                            @RequestParam("place") String place,
                            @RequestParam("courseDate") String courseDate,
-                           Model model) {
-        // 若文件为空
-        if (file.isEmpty()) {
-            model.addAttribute("addVideoState", "视频添加失败！");
+                           Model model) throws IOException {
+
+        //String filePath = "C:\\Users\\zuzhiang\\Desktop\\image";
+
+        if (files.length == 0) {
+            model.addAttribute("addVideoState", "请选择要上传的图片！");
             return "video/addVideo";
         }
-        utils.makeDirs(videoPath);
-        String[] ext = file.getOriginalFilename().split("\\."); // 视频文件后缀名，点需要转义
         String videoId = UUID.randomUUID().toString();
-        String videoName = videoId + "." + ext[ext.length - 1];
-        System.out.println("videoPath: " + videoPath);
-        System.out.println(videoPath + "/" + videoName);
-        File dest = new File(videoPath + "/" + videoName);
-        try {
-            System.out.println("video add");
-            // 写入视频文件
-            file.transferTo(dest);
-            System.out.println("文件写入成功！");
-            // 往数据库添加视频信息
-            Video video = new Video();
-            video.setVideoId(videoId);
-            video.setPath(videoName);
-            video.setTeacher(teacher);
-            video.setPlace(place);
-            video.setCourseDate(courseDate);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String uploadDate = dateFormat.format(new Date()).replace(' ', 'T');
-            video.setUploadDate(uploadDate);
-            video.setState(false);
-            // 获取当前登录用户
-            String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
-            video.setOwner(curUser);
-            videoMapper.addVideo(video);
-            // 使用多线程进行视频的处理，并将结果信息保存到数据库
-            ThreadController threadController = new ThreadController();
-            threadController.asynTask(videoId);
-            model.addAttribute("addVideoState", "视频添加成功！");
-        } catch (IOException e) {
-            System.out.println("出错了！！！！！！！！！");
-            System.out.println(e);
-            model.addAttribute("addVideoState", "视频添加失败！");
+        for (MultipartFile multipartFile : files) {
+            if (multipartFile.isEmpty()) { // 若当前文件为空
+                model.addAttribute("addVideoState", "视频添加失败！");
+                return "video/addVideo";
+            }
+            byte[] fileBytes = multipartFile.getBytes();
+            System.out.println("filePath: " + filePath);
+            utils.makeDirs(filePath + File.separator + videoId);
+            //取得当前上传文件的文件名称
+            String[] ext = multipartFile.getOriginalFilename().split("_"); // 视频文件后缀名，点需要转义
+            String fileName = videoId + "_" + ext[ext.length - 1];
+            FileUtils.uploadFile(fileBytes, filePath + File.separator + videoId, fileName);
         }
+        // 往数据库添加视频信息
+        Video video = new Video();
+        video.setVideoId(videoId);
+        video.setTeacher(teacher);
+        video.setPlace(place);
+        video.setCourseDate(courseDate);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String uploadDate = dateFormat.format(new Date()).replace(' ', 'T');
+        video.setUploadDate(uploadDate);
+        video.setState(false);
+        // 获取当前登录用户
+        String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        video.setOwner(curUser);
+        videoMapper.addVideo(video);
+        // 使用多线程进行视频的处理，并将结果信息保存到数据库
+        ThreadController threadController = new ThreadController();
+        threadController.asynTask(videoId);
+        model.addAttribute("addVideoState", "视频添加成功！");
         return "video/addVideo";
     }
 
     // 更新视频信息
     @RequestMapping("/updateVideo")
     public String updateVideo(@RequestParam("videoId") String videoId,
-                              @RequestParam("file") MultipartFile file,
                               @RequestParam("teacher") String teacher,
                               @RequestParam("place") String place,
                               @RequestParam("courseDate") String courseDate,
                               Model model) {
         Video video = videoMapper.selectVideoById(videoId);
-        if (!file.isEmpty()) { // 如果更新了视频文件
-            try {
-                utils.makeDirs(videoPath);
-                // 写入视频文件
-                File dest = new File(videoPath + "/" + videoId);
-                file.transferTo(dest);
-                // 更新视频信息
-                video.setTeacher(teacher);
-                video.setPlace(place);
-                video.setCourseDate(courseDate);
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String uploadDate = dateFormat.format(new Date()).replace(' ', 'T');
-                video.setUploadDate(uploadDate);
-                videoMapper.updateVideo(video);
-                model.addAttribute("updateVideoState", "视频信息更新成功！");
-            } catch (IOException e) {
-                System.out.println(e);
-                model.addAttribute("updateVideoState", "视频信息更新失败！");
-            }
-        } else {
-            // 只更新视频信息
-            video.setTeacher(teacher);
-            video.setPlace(place);
-            video.setCourseDate(courseDate);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String uploadDate = dateFormat.format(new Date()).replace(' ', 'T');
-            video.setUploadDate(uploadDate);
-            videoMapper.updateVideo(video);
-            model.addAttribute("updateVideoState", "视频信息更新成功！");
-        }
+        // 只更新视频信息
+        video.setTeacher(teacher);
+        video.setPlace(place);
+        video.setCourseDate(courseDate);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String uploadDate = dateFormat.format(new Date()).replace(' ', 'T');
+        video.setUploadDate(uploadDate);
+        videoMapper.updateVideo(video);
+        model.addAttribute("updateVideoState", "视频信息更新成功！");
         model.addAttribute("video", video);
         return "video/updateVideo";
     }
@@ -199,12 +178,12 @@ public class VideoController {
             // 删除视频及其对应的人物和图片
             String tmpObjPath = objPath + "/" + videoId;
             String tmpPosePath = posePath + "/" + videoId;
-            String tmpFacePath = facePath + "/" + videoId;
+            //String tmpFacePath = facePath + "/" + videoId;
             String tmpTxtPath = txtPath + "/" + videoId;
             String tmpReturnPath = returnPath + "/" + videoId + ".txt";
 
-            utils.deleteFile(utils.searchFiles(new File(videoPath), videoId).get(0));
-            String[] paths = {tmpObjPath, tmpPosePath, tmpFacePath, tmpTxtPath, tmpReturnPath};
+            //utils.deleteFile(utils.searchFiles(new File(videoPath), videoId).get(0));
+            String[] paths = {tmpObjPath, tmpPosePath, tmpTxtPath, tmpReturnPath};
             for (String path : paths) {
                 File file = new File(path);
                 utils.deleteFile(file);
