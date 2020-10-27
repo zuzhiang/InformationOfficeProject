@@ -25,8 +25,7 @@ public class ThreadController {
 
     @Autowired
     Utils utils;
-
-    private String videoPath = "/home/jchen/zuzhiang/videos";
+    
     private String returnPath = "/home/jchen/zuzhiang/results/return";
 
     // 读取返回的json文件，并将信息添加到Person和Image表中
