@@ -21,8 +21,10 @@ public class Image {
     private boolean handExist; // 是否检测到手
     private boolean phoneExist; // 是否检测到手机
     private boolean laptopExist; // 是否检测到笔记本电脑
+    private boolean bookExist; // 是否检测到书籍
     private boolean playPhoneExist; // 是否玩手机
     private boolean playLaptopExist; // 是否玩笔记本电脑
+    private boolean readBookExist; // 是否在看书
     private boolean raiseHandExist; // 是否举手
     private boolean bowExist; // 是否低头
     private boolean leanExist; // 是否侧身

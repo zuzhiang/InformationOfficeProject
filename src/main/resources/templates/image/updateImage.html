@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>更新图片信息</title>
+    <!-- Bootstrap core CSS -->
+    <link href="/asserts/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/asserts/css/dashboard.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/asserts/img/favicon.ico"/>
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 顶部导航栏 -->
+<div th:insert="~{commons/commons.html::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- 侧边栏，代码复用（复用commons/commons.html里的） -->
+        <div th:insert="~{commons/commons.html::siderbar(active='video.html')}"></div>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+            <form th:action="@{/updateImage}" method="post" enctype="multipart/form-data">
+                <input name="imageId" type="hidden" th:value="${image.getImageId()}">
+                <input name="oldPlayPhoneExist" type="hidden" th:value="${image.isPlayPhoneExist()?1:0}">
+                <input name="oldPlayLaptopExist" type="hidden" th:value="${image.isPlayLaptopExist()?1:0}">
+                <input name="oldReadBookExist" type="hidden" th:value="${image.isReadBookExist()?1:0}">
+                <input name="oldRaiseHandExist" type="hidden" th:value="${image.isRaiseHandExist()?1:0}">
+                <input name="oldBowExist" type="hidden" th:value="${image.isBowExist()?1:0}">
+                <input name="oldLeanExist" type="hidden" th:value="${image.isLeanExist()?1:0}">
+
+                <div class="form-group">
+                    <label>是否检测到手：</label>
+                    <select name="handExist">
+                        <option th:value="true" th:selected="${image.isHandExist()}">是</option>
+                        <option th:value="false" th:selected="${not image.isHandExist()}">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>是否检测到手机：</label>
+                    <select name="phoneExist">
+                        <option th:value="true" th:selected="${image.isPhoneExist()}">是</option>
+                        <option th:value="false" th:selected="${not image.isPhoneExist()}">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>是否检测到电脑：</label>
+                    <select name="laptopExist">
+                        <option th:value="true" th:selected="${image.isLaptopExist()}">是</option>
+                        <option th:value="false" th:selected="${not image.isLaptopExist()}">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>是否检测到书籍：</label>
+                    <select name="bookExist">
+                        <option th:value="true" th:selected="${image.isBookExist()}">是</option>
+                        <option th:value="false" th:selected="${not image.isBookExist()}">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>是否玩手机：</label>
+                    <select name="playPhoneExist">
+                        <option th:value="true" th:selected="${image.isPlayPhoneExist()}">是</option>
+                        <option th:value="false" th:selected="${not image.isPlayPhoneExist()}">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>是否玩电脑：</label>
+                    <select name="playLaptopExist">
+                        <option th:value="true" th:selected="${image.isPlayLaptopExist()}">是</option>
+                        <option th:value="false" th:selected="${not image.isPlayLaptopExist()}">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>是否读书：</label>
+                    <select name="readBookExist">
+                        <option th:value="true" th:selected="${image.isReadBookExist()}">是</option>
+                        <option th:value="false" th:selected="${not image.isReadBookExist()}">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>是否举手：</label>
+                    <select name="raiseHandExist">
+                        <option th:value="true" th:selected="${image.isRaiseHandExist()}">是</option>
+                        <option th:value="false" th:selected="${not image.isRaiseHandExist()}">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>是否抬头听课：</label>
+                    <select name="bowExist">
+                        <option th:value="true" th:selected="${image.isBowExist()}">是</option>
+                        <option th:value="false" th:selected="${not image.isBowExist()}">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>是否侧身：</label>
+                    <select name="leanExist">
+                        <option th:value="true" th:selected="${image.isLeanExist()}">是</option>
+                        <option th:value="false" th:selected="${not image.isLeanExist()}">否</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">更新</button>
+            </form>
+
+            <script type="text/javascript" th:inline="javascript">
+                // th:inline="javascript" 必须写
+                onload = function () {
+                    var msg = [[${updateImageState}]]; //官方写法
+                    if (msg != null) {
+                        alert(msg)
+                    }
+                };
+            </script>
+
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript" src="/asserts/js/jquery-3.2.1.slim.min.js"></script>
+<script type="text/javascript" src="/asserts/js/popper.min.js"></script>
+<script type="text/javascript" src="/asserts/js/bootstrap.min.js"></script>
+
+<!-- Icons -->
+<script type="text/javascript" src="/asserts/js/feather.min.js"></script>
+<script>
+    feather.replace()
+</script>
+
+<!-- Graphs -->
+<script type="text/javascript" src="/asserts/js/Chart.min.js"></script>
+<script>
+    var ctx = document.getElementById("myChart");
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            datasets: [{
+                data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
+                lineTension: 0,
+                backgroundColor: 'transparent',
+                borderColor: '#007bff',
+                borderWidth: 4,
+                pointBackgroundColor: '#007bff'
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: false
+                    }
+                }]
+            },
+            legend: {
+                display: false,
+            }
+        }
+    });
+</script>
+
+</body>
+
+</html>

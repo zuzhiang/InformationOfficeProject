@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>更新人物信息</title>
+    <!-- Bootstrap core CSS -->
+    <link href="/asserts/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/asserts/css/dashboard.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/asserts/img/favicon.ico"/>
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- 顶部导航栏 -->
+<div th:insert="~{commons/commons.html::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- 侧边栏，代码复用（复用commons/commons.html里的） -->
+        <div th:insert="~{commons/commons.html::siderbar(active='video.html')}"></div>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+            <form th:action="@{/updatePerson}" method="post" enctype="multipart/form-data">
+                <input name="personId" type="hidden" th:value="${person.getPersonId()}">
+                <div th:each="student:${students}">
+                    <input type="hidden" class="number" th:value="${student.getNumber()}"/>
+                    <input type="hidden" class="name" th:value="${student.getName()}"/>
+                </div>
+
+                <div class="form-group">
+                    <label>学号：</label>
+                    <br>
+                    <select style="width: 160px; height: 30px;" name="number" id="number" onchange="change_name();">
+                        <option th:each="student:${students}" th:value="${student.getNumber()}"
+                                th:text="${student.getNumber()}"
+                                th:selected="${student.getNumber()==person.getNumber()}"></option>
+                    </select>
+                    <!-- <input name="number" class="form-control" th:value="${person.getNumber()}"> -->
+                </div>
+                <div class="form-group">
+                    <label>姓名：</label>
+                    <input style="width: 160px;" name="name" id="name" class="form-control"
+                           th:value="${person.getName()}" disabled="disabled">
+                </div>
+                <div class="form-group">
+                    <label>玩手机次数：</label>
+                    <input name="playPhoneNum" type="form-control" th:value="${person.getPlayPhoneNum()}"
+                           disabled="disabled"/>
+                </div>
+                <div class="form-group">
+                    <label>玩电脑次数：</label>
+                    <input name="playLaptopNum" type="form-control" th:value="${person.getPlayLaptopNum()}"
+                           disabled="disabled"/>
+                </div>
+                <div class="form-group">
+                    <label>读书次数：</label>
+                    <input name="readBookNum" type="form-control" th:value="${person.getReadBookNum()}"
+                           disabled="disabled"/>
+                </div>
+                <div class="form-group">
+                    <label>举手次数：</label>
+                    <input name="raiseHandNum" type="form-control" th:value="${person.getRaiseHandNum()}"
+                           disabled="disabled"/>
+                </div>
+                <div class="form-group">
+                    <label>抬头听课次数：</label>
+                    <input name="bowNum" type="form-control" th:value="${person.getBowNum()}" disabled="disabled"/>
+                </div>
+                <div class="form-group">
+                    <label>侧身次数：</label>
+                    <input name="leanNum" type="form-control" th:value="${person.getLeanNum()}" disabled="disabled"/>
+                </div>
+                <button type="submit" class="btn btn-primary">更新</button>
+            </form>
+
+            <!-- 根据下拉列表中选中的学号，自动更改对应的姓名 -->
+            <script>
+                function change_name() {
+                    //根据id找到两个下拉框对象
+                    var number_lst = document.getElementsByClassName("number");
+                    var name_lst = document.getElementsByClassName("name");
+                    var number = document.getElementById("number");
+                    var name = document.getElementById("name");
+                    //得到第一个下拉框的内容
+                    var selected_number = number.options[number.selectedIndex].value;
+                    // 找到学号对应的姓名，并将input标签设置为该姓名
+                    for (let i = 0; i < number_lst.length; i++) {
+                        // console.log(number_lst[i].value);
+                        if (number_lst[i].value == selected_number) {
+                            name.value = name_lst[i].value;
+                            // 删除原来的name对应的input标签
+                            // var father = name.parentElement;
+                            // father.removeChild(name);
+                            // // 通过JS创建一个新节点
+                            // var newInput = document.createElement("input"); // 创建一个p标签
+                            // newInput.style="width: 160px;";
+                            // newInput.id = "name";
+                            // newInput.name="name";
+                            // newInput.value=name_lst[i];
+                            // newInput.disabled="disabled";
+                            // father.appendChild(newInput);
+                            break;
+                        }
+                    }
+                };
+
+            </script>
+
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript" src="/asserts/js/jquery-3.2.1.slim.min.js"></script>
+<script type="text/javascript" src="/asserts/js/popper.min.js"></script>
+<script type="text/javascript" src="/asserts/js/bootstrap.min.js"></script>
+
+<!-- Icons -->
+<script type="text/javascript" src="/asserts/js/feather.min.js"></script>
+<script>
+    feather.replace()
+</script>
+
+<!-- Graphs -->
+<script type="text/javascript" src="/asserts/js/Chart.min.js"></script>
+<script>
+    var ctx = document.getElementById("myChart");
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            datasets: [{
+                data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
+                lineTension: 0,
+                backgroundColor: 'transparent',
+                borderColor: '#007bff',
+                borderWidth: 4,
+                pointBackgroundColor: '#007bff'
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: false
+                    }
+                }]
+            },
+            legend: {
+                display: false,
+            }
+        }
+    });
+</script>
+
+</body>
+
+</html>

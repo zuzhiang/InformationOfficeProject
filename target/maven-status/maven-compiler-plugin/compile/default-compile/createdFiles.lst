@@ -1,9 +1,11 @@
+com\ecnu\pojo\Student.class
 com\ecnu\config\SecurityConfig.class
 com\ecnu\utils\Utils$1.class
 com\ecnu\controller\ThreadController.class
 com\ecnu\config\LocaleResolverConfig.class
 com\ecnu\pojo\Video.class
 com\ecnu\ProjectApplication.class
+com\ecnu\mapper\StudentMapper.class
 com\ecnu\mapper\VideoMapper.class
 com\ecnu\mapper\ImageMapper.class
 com\ecnu\controller\VideoHandleController$1.class

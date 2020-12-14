@@ -1,6 +1,7 @@
 import os
 import sys
 import cv2
+import math
 import json
 import glob
 import numpy as np
@@ -11,34 +12,25 @@ def make_dirs(path):
         os.makedirs(path)
 
 
-def compute_IOU(ObjectBound, HandBound):
-    cx1 = ObjectBound[0]
-    cy1 = ObjectBound[1]
-    cx2 = ObjectBound[2]
-    cy2 = ObjectBound[3]
-
-    gx1 = HandBound[0]
-    gy1 = HandBound[1]
-    gx2 = HandBound[2]
-    gy2 = HandBound[3]
-
-    carea = (cx2 - cx1) * (cy2 - cy1)  # C的面积
-    garea = (gx2 - gx1) * (gy2 - gy1)  # G的面积
-
-    x1 = max(cx1, gx1)
-    y1 = max(cy1, gy1)
-    x2 = min(cx2, gx2)
-    y2 = min(cy2, gy2)
-    w = max(0, x2 - x1)
-    h = max(0, y2 - y1)
-    area = w * h  # C∩G的面积
-
-    # iou = area / (carea + garea - area)
-    if area == 0 or (carea + garea - area) == 0:
-        iou = 0
-    else:
-        iou = area / (carea + garea - area + 1e-8)
+def get_IOU(bbox1, bbox2):
+    # bbox1 = [x0,y0,x1,y1]
+    x0, y0, x1, y1 = bbox1
+    x2, y2, x3, y3 = bbox2
+    s1 = (x1-x0)*(y1-y0)
+    s2 = (x3-x2)*(y3-y2)
+    w = max(0, min(x1, x3) - max(x0,x2))
+    h = max(0, min(y1, y3) - max(y0, y2))
+    inter = w*h
+    #print("s1: ",s1,"  s2: ",s2,"  inter: ",inter )
+    iou = inter/(s1+s2-inter+1e-8)
     return iou
+
+
+# 1和2构成线，判断3距离线的位置
+def get_distance(x1, y1, x2, y2, x3, y3):
+    k = (y2 - y1) / (x2 - x1 + 1e-8)
+    b = y1 - k * x1
+    return (k * x3 + b) - y3
 
 
 if __name__ == "__main__":
@@ -71,9 +63,10 @@ if __name__ == "__main__":
     jt_lst = [0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 14, 15, 16, 17]  # 确定上半身矩形框的关节点下标
     face_jt = [0, 1, 14, 15, 16, 17]  # 确定人脸矩形框的关节点下标
     iou_lst = []
-
+    
     with open(json_path, 'r') as f:
         dct = json.load(f)
+        print("position start......")
         for img_name, value in dct.items():  # 遍历每张图片，key是图像名
             # print(cur_img_name)
             person_num = 0
@@ -106,28 +99,30 @@ if __name__ == "__main__":
                 top, down = (max_y - min_y) * 0.33, (max_y - min_y) * 0.33
                 min_x, max_x = int(np.clip(min_x - left, 0, shape[1])), int(np.clip(max_x + right, 0, shape[1]))
                 min_y, max_y = int(np.clip(min_y - down, 0, shape[0])), int(np.clip(max_y + top, 0, shape[0]))
-                flag = 0  # 当前矩形框和rect_st中的矩形框的IOU均不超过阈值
+                max_iou,cur_lst,cur_name=0,[],""
                 for rect in rect_st:
-                    IOU = compute_IOU(rect[1], (min_x, min_y, max_x, max_y))
+                    IOU = get_IOU(rect[1], (min_x, min_y, max_x, max_y))
                     if IOU != 0:
                         iou_lst.append(-IOU)
-                    if (IOU >= iou_th):  # 若IOU大于阈值则加入rect_dict中rect对应的列表中
-                        flag = 1
-                        rect_dict[rect[0]].append(
-                            [img_name, (min_x, min_y, max_x, max_y), (face_min_x, face_min_y, face_max_x, face_max_y),
-                             body["joints"]])
-                        break
-                if flag == 0:  # 如果均不大于阈值，则加入rect_st中，并在rect_dict生成新的键值对
+                    if IOU >= max_iou:  # 找到当前矩形框和哪个已有矩形框的IOU最大
+                        max_iou=IOU
+                        cur_name=rect[0]
+                        cur_lst=[img_name, (min_x, min_y, max_x, max_y), (face_min_x, face_min_y, face_max_x, face_max_y), body["joints"]]
+                if max_iou>iou_th: # 矩形框和rect_st中的矩形框的最大IOU超过阈值则加入rect_dict中rect对应的列表中
+                    rect_dict[cur_name].append(cur_lst)
+                else: # 如果均不大于阈值，则加入rect_st中，并在rect_dict生成新的键值对                
                     rect_st.append([cur_img_name, (min_x, min_y, max_x, max_y)])
                     rect_dict[cur_img_name] = [
                         [img_name, (min_x, min_y, max_x, max_y), (face_min_x, face_min_y, face_max_x, face_max_y),
-                         body["joints"]], ]
-            print("person num: ", person_num)
+                        body["joints"]]]
+            # print("person num: ",person_num)
+        print("position end......\n")
         # print("len(iou_lst): ", len(iou_lst))
         # print("IOU list: ", sorted(iou_lst)[50:])
-
+        
         person_num = 0
         for rect_lst in rect_dict.values():  # 遍历rect_dict的每个值，即每个位置对应的[图像名，上半身矩形框，人脸矩形框，关节点列表]的列表
+            flag,num=0,0 # 每个人至少保存10张人脸图片，已经保存的图片数
             person_num += 1
             cur_obj_path = os.path.join(obj_img_path, str(person_num))
             cur_pose_path = os.path.join(pose_img_path, str(person_num))
@@ -138,7 +133,7 @@ if __name__ == "__main__":
             make_dirs(cur_pose_path)
             make_dirs(cur_face_path)
             pic_num = 0
-            for rect in rect_lst:  # 遍历当前位置（人）对应的所有图片，即遍历每个[图像名，上半身矩形框，人脸矩形框，关节点列表]
+            for rect in rect_lst:  # 遍历当前位置（人）对应的所有图片，即遍历每个[图像名，上半身矩形框，人脸矩形框，关节点列表]                
                 pic_num += 1
                 # 裁剪图片并加以保存
                 name, ext = os.path.splitext(rect[0])
@@ -150,7 +145,12 @@ if __name__ == "__main__":
                 if (img.shape[0] != 0 and img.shape[1] != 0 and img.shape[2] != 0 and face_img.shape[0] != 0 and
                         face_img.shape[1] != 0 and face_img.shape[2] != 0):
                     cv2.imwrite(os.path.join(cur_obj_path, out_img_name), img)
-                    cv2.imwrite(os.path.join(cur_face_path, out_img_name), face_img)
+                    x0,y0,x2,y2,x5,y5=rect[3][0*3],rect[3][0*3+1],rect[3][2*3],rect[3][2*3+1],rect[3][5*3],rect[3][5*3+1]
+                    dist = get_distance(x2, y2, x5, y5, x0, y0) / (math.sqrt((x2 - x5) ** 2 + (y2 - y5) ** 2) + 1e-8)
+                    # 最多保存150张图片，其中包括最多10张低头图片，其他均为抬头图片
+                    if (flag<6 or (dist > 0 and abs(dist) > 0.15)) and num<100:
+                        flag,num=flag+1,num+1
+                        cv2.imwrite(os.path.join(cur_face_path, out_img_name), face_img)
                     pose_dict[os.path.join(str(person_num), out_img_name)] = rect[
                         3]  # 往字典里插入新的键值对，键为crop后的图片名，值为人对应的关节点信息
                     if os.path.exists(os.path.join(pose_img_path, rect[0])):
@@ -158,14 +158,15 @@ if __name__ == "__main__":
                         img = pose_img[rect[1][1]:rect[1][3], rect[1][0]:rect[1][2]]
                     cv2.imwrite(os.path.join(cur_pose_path, out_img_name), img)
     f.close()
+    print("crop and save images end......")
     # 保存包含图片信息的json
     out_json = open(out_json_path, 'w')
     json.dump(pose_dict, out_json)
     out_json.close()
-    print("End")
 
     # 删除原来的大图
     for key in dct.keys():
         if os.path.exists(os.path.join(pose_img_path, key)):
             os.remove(os.path.join(pose_img_path, key))
     # os.remove(os.path.join(big_img_path, key))
+    

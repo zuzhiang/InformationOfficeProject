@@ -8,6 +8,9 @@ returnPath: /home/jchen/zuzhiang/results/return
 txtPath: /home/jchen/zuzhiang/results/txt
 filePath: /home/jchen/zuzhiang/images
 
+server:
+  port: 8080
+
 spring:
   # 连接数据库的配置
   datasource:
@@ -15,6 +18,11 @@ spring:
     password: classEcnu123
     url: jdbc:mysql://172.20.4.55:3306/informationoffice?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 3
+      maximum-pool-size: 10
+      max-lifetime: 60000
+      connection-test-query: SELECT 1
   messages:
     # 国际化配置文件的位置
     basename: i18n.login

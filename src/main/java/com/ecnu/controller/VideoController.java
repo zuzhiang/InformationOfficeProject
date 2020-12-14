@@ -39,8 +39,6 @@ public class VideoController {
     Utils utils;
 
     // 视频存储的根目录
-    @Value("${videoPath}")
-    private String videoPath;
     @Value("${objPath}")
     private String objPath;
     @Value("${posePath}")
@@ -112,11 +110,10 @@ public class VideoController {
         String videoId = UUID.randomUUID().toString();
         for (MultipartFile multipartFile : files) {
             if (multipartFile.isEmpty()) { // 若当前文件为空
-                model.addAttribute("addVideoState", "视频添加失败！");
+                model.addAttribute("addVideoState", "图片添加失败！");
                 return "video/addVideo";
             }
             byte[] fileBytes = multipartFile.getBytes();
-            System.out.println("filePath: " + filePath);
             utils.makeDirs(filePath + File.separator + videoId);
             //取得当前上传文件的文件名称
             String[] ext = multipartFile.getOriginalFilename().split("_"); // 视频文件后缀名，点需要转义
@@ -140,7 +137,22 @@ public class VideoController {
         // 使用多线程进行视频的处理，并将结果信息保存到数据库
         ThreadController threadController = new ThreadController();
         threadController.asynTask(videoId);
-        model.addAttribute("addVideoState", "视频添加成功！");
+
+        /*
+        // 删除不必要的文件，以节省空间
+        String curFilePath = filePath + "/" + videoId;
+        String curFacePath = facePath + "/" + videoId;
+        String curJsonPath = posePath + "/" + videoId + "/json/sep-json";
+        String curJsonFile = posePath + "/" + videoId + "/json/alphapose-results.json";
+        String[] paths = {curFilePath, curFacePath, curJsonPath, curJsonFile};
+        for (String path : paths) {
+            System.out.println("delete: " + path);
+            File file = new File(path);
+            utils.deleteFile(file);
+        }
+        */
+
+        model.addAttribute("addVideoState", "课程添加成功！");
         return "video/addVideo";
     }
 
@@ -157,10 +169,10 @@ public class VideoController {
         video.setPlace(place);
         video.setCourseDate(courseDate);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String uploadDate = dateFormat.format(new Date()).replace(' ', 'T');
-        video.setUploadDate(uploadDate);
+        // String uploadDate = dateFormat.format(new Date()).replace(' ', 'T');
+        // video.setUploadDate(uploadDate);
         videoMapper.updateVideo(video);
-        model.addAttribute("updateVideoState", "视频信息更新成功！");
+        model.addAttribute("updateVideoState", "课程信息更新成功！");
         model.addAttribute("video", video);
         return "video/updateVideo";
     }
@@ -176,14 +188,15 @@ public class VideoController {
         // 如果当前用户不是管理员用户，并且不是当前视频的所有者，则不能删除
         if (user.getRole().contains("admin") || curUser.equals(video.getOwner())) {
             // 删除视频及其对应的人物和图片
+            String tmpFilePath = filePath + "/" + videoId;
             String tmpObjPath = objPath + "/" + videoId;
             String tmpPosePath = posePath + "/" + videoId;
-            //String tmpFacePath = facePath + "/" + videoId;
+            String tmpFacePath = facePath + "/" + videoId;
             String tmpTxtPath = txtPath + "/" + videoId;
             String tmpReturnPath = returnPath + "/" + videoId + ".txt";
 
             //utils.deleteFile(utils.searchFiles(new File(videoPath), videoId).get(0));
-            String[] paths = {tmpObjPath, tmpPosePath, tmpTxtPath, tmpReturnPath};
+            String[] paths = {tmpFilePath, tmpObjPath, tmpPosePath, tmpFacePath, tmpTxtPath, tmpReturnPath};
             for (String path : paths) {
                 File file = new File(path);
                 utils.deleteFile(file);
@@ -192,9 +205,9 @@ public class VideoController {
             videoMapper.deleteVideo(videoId);
             personMapper.deletePersonByVideoId(videoId);
             imageMapper.deleteImageByVideoId(videoId);
-            model.addAttribute("deleteVideoState", "删除视频成功！");
+            model.addAttribute("deleteVideoState", "删除课程成功！");
         } else {
-            model.addAttribute("deleteVideoState", "普通用户只能删除自己上传的视频！");
+            model.addAttribute("deleteVideoState", "普通用户只能删除自己上传的课程！");
         }
         Collection<Video> videos = videoMapper.selectAllVideo();
         model.addAttribute("videos", videos);

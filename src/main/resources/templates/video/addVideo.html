@@ -14,7 +14,7 @@
 
     <!-- Custom styles for this template -->
     <link href="/asserts/css/dashboard.css" rel="stylesheet">
-    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="shortcut icon" href="/asserts/img/favicon.ico"/>
     <style type="text/css">
         /* Chart.js */
 
@@ -73,7 +73,17 @@
                 </div>
                 <div class="form-group">
                     <label>上课地点：</label>
-                    <input name="place" class="form-control" placeholder="请输入上课地点">
+                    <br/>
+                    <select name="place">
+                        <option th:value="WF305">WF305</option>
+                        <option th:value="WF401">WF401</option>
+                        <option th:value="SJ203">SJ203</option>
+                        <option th:value="YJ120-1">YJ120-1</option>
+                        <option th:value="YJ120-2">YJ120-2</option>
+                        <option th:value="YJ243-1">YJ243-1</option>
+                        <option th:value="YJ243-2">YJ243-2</option>
+                        <option th:value="YJ243-3">YJ243-3</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>上课日期：</label>
@@ -85,18 +95,17 @@
 
             <!-- 上传文件进度条 -->
             <script type="text/javascript">
-                var reader = null;
-                if (FileReader) {
-                    reader = new FileReader();
-                } else {
-                    alert("ERROR!");
-                }
                 var readBinary = function () {
-                    reader.readAsBinaryString(document.getElementById("file").files[0]);
+                    var files = document.getElementById("file").files;
                     var pro = document.getElementById("pro");
-                    pro.max = document.getElementById("file").files[0].size;
-                    reader.onprogress = function (evt) {
-                        pro.value = evt.loaded;
+                    pro.max = files.length;
+                    pro.value = 0;
+                    for (var i = 0; i < files.length; i++) {
+                        var reader = new FileReader();
+                        reader.readAsBinaryString(files[i]);
+                        reader.onload = function () {
+                            pro.value += 1;
+                        }
                     }
                 }
             </script>
@@ -122,7 +131,7 @@
 <script type="text/javascript" src="/asserts/js/popper.min.js"></script>
 <script type="text/javascript" src="/asserts/js/bootstrap.min.js"></script>
 
- Icons
+Icons
 <script type="text/javascript" src="/asserts/js/feather.min.js"></script>
 <script>
 

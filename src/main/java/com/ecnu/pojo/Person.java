@@ -21,6 +21,7 @@ public class Person {
     private String name; // 姓名
     private Integer playPhoneNum; // 玩手机次数
     private Integer playLaptopNum; // 玩笔记本电脑次数
+    private Integer readBookNum; // 看书的次数
     private Integer raiseHandNum; // 举手次数
     private Integer bowNum; // 低头次数
     private Integer leanNum; // 侧身次数

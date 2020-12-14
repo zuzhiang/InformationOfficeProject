@@ -44,6 +44,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/addVideo/**").hasRole("ordinary")
                 .antMatchers("/updateVideo/**").hasRole("ordinary")
                 .antMatchers("/deleteVideo/**").hasRole("ordinary")
+                .antMatchers("/toUpdatePersonPage/**").hasRole("ordinary")
+                .antMatchers("/updatePerson/**").hasRole("ordinary")
+                .antMatchers("/deletePerson/**").hasRole("ordinary")
+                .antMatchers("/toUpdateImagePage/**").hasRole("ordinary")
+                .antMatchers("/updateImage/**").hasRole("ordinary")
+                .antMatchers("/deleteImage/**").hasRole("ordinary")
                 .and()
                 // 登录页
                 .formLogin().loginPage("/login")

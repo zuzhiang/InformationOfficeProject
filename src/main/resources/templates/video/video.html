@@ -8,13 +8,13 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>视频列表</title>
+    <title>课程列表</title>
     <!-- Bootstrap core CSS -->
     <link href="/asserts/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="/asserts/css/dashboard.css" rel="stylesheet">
-    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="shortcut icon" href="/asserts/img/favicon.ico"/>
     <style type="text/css">
         /* Chart.js */
 
@@ -56,14 +56,14 @@
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
             <div style="clear:both">
-                <a class="btn btn-sm btn-success" th:href="@{/toAddVideoPage}">添加视频</a>
+                <a class="btn btn-sm btn-success" th:href="@{/toAddVideoPage}">添加图片</a>
                 <form th:action="@{/selectVideo}" method="post" enctype="multipart/form-data" style="float: right">
                     <select name="selectType" align="right" onchange="setInputValue()" id="select">
                         <option th:value="teacher">按教师查询</option>
                         <option th:value="place">按上课地点查询</option>
                     </select>
                     <input type="text" name="content" id="input" placeholder="请输入教师名" align="right">
-                    <button type="submit" class="btn btn-sm btn-primary">查找视频</button>
+                    <button type="submit" class="btn btn-sm btn-primary">查找课程</button>
 
                     <script type="text/javascript">
                         function setInputValue() {
