@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -99,7 +100,7 @@ public class VideoController {
                            @RequestParam("teacher") String teacher,
                            @RequestParam("place") String place,
                            @RequestParam("courseDate") String courseDate,
-                           Model model) throws IOException {
+                           Model model) throws Exception {
 
         //String filePath = "C:\\Users\\zuzhiang\\Desktop\\image";
 
@@ -125,10 +126,10 @@ public class VideoController {
         video.setVideoId(videoId);
         video.setTeacher(teacher);
         video.setPlace(place);
-        video.setCourseDate(courseDate);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String uploadDate = dateFormat.format(new Date()).replace(' ', 'T');
-        video.setUploadDate(uploadDate);
+        if (courseDate.length() < 17) courseDate += ":00";
+        video.setCourseDate(Timestamp.valueOf(courseDate.replace("T", " ")));
+        Timestamp uploadDate = new Timestamp(System.currentTimeMillis());
+        video.setUploadDate(Timestamp.valueOf(uploadDate.toString().substring(0, 19)));
         video.setState(false);
         // 获取当前登录用户
         String curUser = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -167,10 +168,8 @@ public class VideoController {
         // 只更新视频信息
         video.setTeacher(teacher);
         video.setPlace(place);
-        video.setCourseDate(courseDate);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        // String uploadDate = dateFormat.format(new Date()).replace(' ', 'T');
-        // video.setUploadDate(uploadDate);
+        if (courseDate.length() < 17) courseDate += ":00";
+        video.setCourseDate(Timestamp.valueOf(courseDate.replace("T", " ")));
         videoMapper.updateVideo(video);
         model.addAttribute("updateVideoState", "课程信息更新成功！");
         model.addAttribute("video", video);

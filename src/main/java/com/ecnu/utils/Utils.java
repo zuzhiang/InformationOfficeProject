@@ -81,4 +81,35 @@ public class Utils {
         }
         return result;
     }
+
+    // 计算统计信息（各个动作的得分等）的第一步
+    public double getExpScore(int x, List<Integer> list) {
+        int size = list.size();
+        double max = list.get(size - 1);
+        double mid;
+        if (size % 2 == 1) {
+            mid = list.get((size - 1) / 2);
+        } else {
+            mid = (list.get(size / 2) + list.get(size / 2 - 1)) / 2.0;
+        }
+        return 3.0 * Math.exp((x - mid) / (max - mid) * Math.log(5.0 / 3.0));
+    }
+
+    // 计算统计信息（各个动作的得分等）的第二步
+    public double getMeanScore(double x, List<Double> list) {
+        int size = list.size();
+        double min = list.get(0), max = list.get(size - 1);
+        double sum = 0;
+        for (Double itm : list) {
+            sum += itm;
+        }
+        double avg = sum / size;
+        if (x == avg) {
+            return 3;
+        } else if (x < avg) {
+            return 3 - 2.0 * (avg - x) / (avg - min);
+        } else {
+            return 3 + 2.0 * (x - avg) / (max - avg);
+        }
+    }
 }

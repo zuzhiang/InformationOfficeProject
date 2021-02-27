@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>数据可视化</title>
+    <!-- Bootstrap core CSS -->
+    <link href="/asserts/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/asserts/css/dashboard.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/asserts/img/favicon.ico"/>
+    <style type="text/css">
+        /* Chart.js */
+
+        @-webkit-keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        @keyframes chartjs-render-animation {
+            from {
+                opacity: 0.99
+            }
+            to {
+                opacity: 1
+            }
+        }
+
+        .chartjs-render-monitor {
+            -webkit-animation: chartjs-render-animation 0.001s;
+            animation: chartjs-render-animation 0.001s;
+        }
+    </style>
+</head>
+
+<body style="overflow:-Scroll;overflow-x:hidden;overflow-y:hidden">
+
+<!-- 顶部导航栏 -->
+<div th:replace="~{commons/commons.html::topbar}"></div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- 侧边栏，代码复用（复用commons/commons.html里的） -->
+        <!-- 传递参数给组件 -->
+        <div th:replace="~{commons/commons.html::siderbar(active='visual.html')}"></div>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <form th:action="@{/getVisualData}" method="post" enctype="multipart/form-data">
+                <div style="width:100%; display: inline-block; margin-bottom: -5px;">
+                    <div style="width:100%;  margin:0% auto; margin-left: 20%;">
+                        <div style="float: left; width: 15%; margin-top: 7px;">
+                            <label style="float:left;">班级：</label>
+                            <select id="unit" name="unit" onchange="getNumberList()"
+                                    style="vertical-align:middle; text-align: center; height: 25px;">
+                                <option th:value="WF305" th:selected="${unit}=='WF305'">WF305</option>
+                                <option th:value="WF401" th:selected="${unit}=='WF401'">WF401</option>
+                                <option th:value="SJ203" th:selected="${unit}=='SJ203'">SJ203</option>
+                                <option th:value="YJ120-1" th:selected="${unit}=='YJ120-1'">YJ120-1</option>
+                                <option th:value="YJ120-2" th:selected="${unit}=='YJ120-2'">YJ120-2</option>
+                                <option th:value="YJ243-1" th:selected="${unit}=='YJ243-1'">YJ243-1</option>
+                                <option th:value="YJ243-2" th:selected="${unit}=='YJ243-2'">YJ243-2</option>
+                                <option th:value="YJ243-3" th:selected="${unit}=='YJ243-3'">YJ243-3</option>
+                            </select>
+                        </div>
+                        <div style="float: left; width: 18%; margin-top: 7px; margin-left: 15px;">
+                            <label style="float:left;">学号1：</label>
+                            <select id="number1" name="number1"
+                                    style="vertical-align:middle; text-align: center; height: 25px;">
+                                <option id="all1" th:value="all">所有</option>
+                                <option th:each="student:${studentList}" th:name="${student.getUnit()}"
+                                        th:if="${student.getNumber()!='-'}" class="numberItem1"
+                                        th:value="${student.getNumber()}" th:text="${student.getNumber()}"
+                                        th:selected="${student.getNumber()==number1}"></option>
+                            </select>
+                        </div>
+                        <div style="float: left; width: 18%; margin-top: 7px; margin-left: 15px;">
+                            <label style="float:left;">学号2：</label>
+                            <select id="number2" name="number2"
+                                    style="vertical-align:middle; text-align: center; height: 25px;">
+                                <option id="all2" th:value="all">所有</option>
+                                <option th:each="student:${studentList}" th:name="${student.getUnit()}"
+                                        th:if="${student.getNumber()!='-'}" class="numberItem2"
+                                        th:value="${student.getNumber()}" th:text="${student.getNumber()}"
+                                        th:selected="${student.getNumber()==number2}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div style="width:100%; display: inline-block">
+                    <div style="width:100%;  margin:0% auto; margin-left: 14%">
+                        <div style="float: left; width: 29%; margin-top: 7px;">
+                            <label style="float:left;">开始日期：</label>
+                            <input name="startTime" type="datetime-local"
+                                   th:value="${startTime==null?'2021-01-01T00:00:00':startTime}"
+                                   style="vertical-align:middle; text-align: center; height: 25px;"/>
+                        </div>
+                        <div style="float: left; width: 29%; margin-top: 7px; margin-left: 10px;">
+                            <label style="float:left;">结束日期：</label>
+                            <input name="endTime" type="datetime-local"
+                                   th:value="${endTime==null?'2021-01-01T00:00:00':endTime}"
+                                   style="vertical-align:middle; text-align: center; height: 25px;"/>
+                        </div>
+                        <div style="float: left; margin-left: 10px;">
+                            <button type="submit" class="btn btn-primary">获取</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div style="height: 46%; width: 80%; margin-left: 10%; margin-top: 2%; margin-bottom: 1%">
+                <div style="display: inline-block">
+                    <label style="float:left;">条目：</label>
+                    <select id="select" style="float:left;" onchange="changeAction()">
+                        <option th:value="investment" selected>课堂投入度</option>
+                        <option th:value="divorce">课堂脱离度</option>
+                        <option th:value="listen">听课</option>
+                        <option th:value="communication">交流</option>
+                        <option th:value="phoneScore">玩手机得分</option>
+                        <option th:value="phoneNum">玩手机次数</option>
+                        <option th:value="laptopScore">玩电脑得分</option>
+                        <option th:value="laptopNum">玩电脑次数</option>
+                        <option th:value="bookScore">读书得分</option>
+                        <option th:value="bookNum">读书次数</option>
+                        <option th:value="handScore">举手得分</option>
+                        <option th:value="handNum">举手次数</option>
+                        <option th:value="bowScore">看黑板得分</option>
+                        <option th:value="bowNum">看黑板次数</option>
+                        <option th:value="leanScore">侧身得分</option>
+                        <option th:value="leanNum">侧身次数</option>
+                    </select>
+                </div>
+                <div style="margin-top: -35px;">
+                    <canvas class="my-4 chartjs-render-monitor" id="myChart" style="display: block;"></canvas>
+                </div>
+            </div>
+
+            <tr th:each="visual:${visualList1}">
+                <input name="investment1" type="hidden" th:value="${visual.getInvestment()}">
+                <input name="divorce1" type="hidden" th:value="${visual.getDivorce()}">
+                <input name="listen1" type="hidden" th:value="${visual.getListen()}">
+                <input name="communication1" type="hidden" th:value="${visual.getCommunication()}">
+                <input name="phoneNum1" type="hidden" th:value="${visual.getPlayPhoneNum()}">
+                <input name="laptopNum1" type="hidden" th:value="${visual.getPlayLaptopNum()}">
+                <input name="bookNum1" type="hidden" th:value="${visual.getReadBookNum()}">
+                <input name="handNum1" type="hidden" th:value="${visual.getRaiseHandNum()}">
+                <input name="bowNum1" type="hidden" th:value="${visual.getBowNum()}">
+                <input name="leanNum1" type="hidden" th:value="${visual.getLeanNum()}">
+                <input name="phoneScore1" type="hidden" th:value="${visual.getPlayPhoneScore()}">
+                <input name="laptopScore1" type="hidden" th:value="${visual.getPlayLaptopScore()}">
+                <input name="bookScore1" type="hidden" th:value="${visual.getReadBookScore()}">
+                <input name="handScore1" type="hidden" th:value="${visual.getRaiseHandScore()}">
+                <input name="bowScore1" type="hidden" th:value="${visual.getBowScore()}">
+                <input name="leanScore1" type="hidden" th:value="${visual.getLeanScore()}">
+                <input name="time" type="hidden" th:value="${visual.getTime()}">
+            </tr>
+            <tr th:each="visual:${visualList2}">
+                <input name="investment2" type="hidden" th:value="${visual.getInvestment()}">
+                <input name="divorce2" type="hidden" th:value="${visual.getDivorce()}">
+                <input name="listen2" type="hidden" th:value="${visual.getListen()}">
+                <input name="communication2" type="hidden" th:value="${visual.getCommunication()}">
+                <input name="phoneNum2" type="hidden" th:value="${visual.getPlayPhoneNum()}">
+                <input name="laptopNum2" type="hidden" th:value="${visual.getPlayLaptopNum()}">
+                <input name="bookNum2" type="hidden" th:value="${visual.getReadBookNum()}">
+                <input name="handNum2" type="hidden" th:value="${visual.getRaiseHandNum()}">
+                <input name="bowNum2" type="hidden" th:value="${visual.getBowNum()}">
+                <input name="leanNum2" type="hidden" th:value="${visual.getLeanNum()}">
+                <input name="phoneScore2" type="hidden" th:value="${visual.getPlayPhoneScore()}">
+                <input name="laptopScore2" type="hidden" th:value="${visual.getPlayLaptopScore()}">
+                <input name="bookScore2" type="hidden" th:value="${visual.getReadBookScore()}">
+                <input name="handScore2" type="hidden" th:value="${visual.getRaiseHandScore()}">
+                <input name="bowScore2" type="hidden" th:value="${visual.getBowScore()}">
+                <input name="leanScore2" type="hidden" th:value="${visual.getLeanScore()}">
+            </tr>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript" src="/asserts/js/jquery-3.2.1.slim.min.js"></script>
+<script type="text/javascript" src="/asserts/js/popper.min.js"></script>
+<script type="text/javascript" src="/asserts/js/bootstrap.min.js"></script>
+
+<!-- Icons -->
+<script type="text/javascript" src="/asserts/js/feather.min.js"></script>
+<script>
+    feather.replace()
+</script>
+
+<!-- Graphs -->
+<script type="text/javascript" src="/asserts/js/Chart.min.js"></script>
+<script>
+    // 初次加载网页时绘制空的折线图
+    var ctx = document.getElementById("myChart");
+    var number1 = document.getElementById("number1");
+    var number2 = document.getElementById("number2");
+    var actionList1 = document.getElementsByName("investment1");
+    var actionList2 = document.getElementsByName("investment2");
+    var timeList = document.getElementsByName("time");
+    var data1 = [], data2 = [], label = []
+    for (let i = 0; i < timeList.length; i++) {
+        label.push(timeList[i].value.substr(0, 16))
+    }
+    for (let i = 0; i < actionList1.length; i++) {
+        data1.push(actionList1[i].value)
+    }
+    for (let i = 0; i < actionList2.length; i++) {
+        data2.push(actionList2[i].value)
+    }
+    var datasets1 = {
+        label: number1.options[number1.selectedIndex].value,
+        data: data1,
+        lineTension: 0,
+        backgroundColor: 'transparent',
+        borderColor: '#007bff',
+        pointBackgroundColor: '#007bff',
+        borderWidth: 2,
+    }
+    var datasets2 = {
+        label: number2.options[number2.selectedIndex].value,
+        data: data2,
+        lineTension: 0,
+        backgroundColor: 'transparent',
+        borderColor: '#d8490f',
+        pointBackgroundColor: '#d8490f',
+        borderWidth: 2,
+    }
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: label,
+            datasets: [datasets1, datasets2]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: false
+                    }
+                }]
+            },
+            legend: {
+                display: true,
+            }
+        }
+    });
+</script>
+
+<script>
+    // 当所选的动作发生改变时，更改折线图
+    function changeAction() {
+        var ctx = document.getElementById("myChart");
+        var item = document.getElementById("select");
+        var value = item.options[item.selectedIndex].value;
+        var number1 = document.getElementById("number1");
+        var number2 = document.getElementById("number2");
+        var actionList1 = document.getElementsByName(value + '1');
+        var actionList2 = document.getElementsByName(value + '2');
+        var timeList = document.getElementsByName("time");
+        var data1 = [], data2 = [], label = []
+        for (let i = 0; i < timeList.length; i++) {
+            label.push(timeList[i].value.substr(0, 16))
+        }
+        for (let i = 0; i < actionList1.length; i++) {
+            data1.push(actionList1[i].value)
+        }
+        for (let i = 0; i < actionList2.length; i++) {
+            data2.push(actionList2[i].value)
+        }
+        console.log(data1)
+        console.log(data2)
+        var datasets1 = {
+            label: number1.options[number1.selectedIndex].value,
+            data: data1,
+            lineTension: 0,
+            backgroundColor: 'transparent',
+            borderColor: '#007bff',
+            pointBackgroundColor: '#007bff',
+            borderWidth: 2,
+        }
+        var datasets2 = {
+            label: number2.options[number2.selectedIndex].value,
+            data: data2,
+            lineTension: 0,
+            backgroundColor: 'transparent',
+            borderColor: '#d8490f',
+            pointBackgroundColor: '#d8490f',
+            borderWidth: 2,
+        }
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: label,
+                datasets: [datasets1, datasets2]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: false
+                        }
+                    }]
+                },
+                legend: {
+                    display: true,
+                }
+            }
+        });
+    }
+</script>
+
+<script>
+    // 初次加载网页时根据班级获取属于该班级的学号列表
+    onload = function () {
+        //找到两个下拉框对象
+        var unit = document.getElementById("unit");
+        var numberList1 = document.getElementsByClassName("numberItem1");
+        var numberList2 = document.getElementsByClassName("numberItem2");
+        //得到班级下拉框的内容
+        var selectedUnit = unit.options[unit.selectedIndex].value;
+        console.log(selectedUnit);
+        // 将属于当前班级的学号显示，反之隐藏
+        for (let i = 0; i < numberList1.length; i++) {
+            if (numberList1[i].getAttribute("name") != selectedUnit) {
+                numberList1[i].style = "display:none";
+                numberList2[i].style = "display:none";
+            } else {
+                numberList1[i].style = "display:list-item";
+                numberList2[i].style = "display:list-item";
+            }
+        }
+    }
+
+    // 当班级发生变化时根据班级获取属于该班级的学号列表
+    function getNumberList() {
+        //找到两个下拉框对象
+        var unit = document.getElementById("unit");
+        var all1 = document.getElementById("all1");
+        var all2 = document.getElementById("all2");
+        var numberList1 = document.getElementsByClassName("numberItem1");
+        var numberList2 = document.getElementsByClassName("numberItem2");
+        //得到班级下拉框的内容
+        var selectedUnit = unit.options[unit.selectedIndex].value;
+        console.log(selectedUnit);
+        // 将属于当前班级的学号显示，反之隐藏
+        for (let i = 0; i < numberList1.length; i++) {
+            if (numberList1[i].getAttribute("name") != selectedUnit) {
+                numberList1[i].style = "display:none";
+                numberList2[i].style = "display:none";
+            } else {
+                numberList1[i].style = "display:list-item";
+                numberList2[i].style = "display:list-item";
+            }
+        }
+        all1.selected = true;
+        all2.selected = true;
+    }
+</script>
+
+</body>
+
+</html>

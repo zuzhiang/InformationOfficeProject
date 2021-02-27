@@ -138,16 +138,6 @@
                 <button type="submit" class="btn btn-primary">更新</button>
             </form>
 
-            <script type="text/javascript" th:inline="javascript">
-                // th:inline="javascript" 必须写
-                onload = function () {
-                    var msg = [[${updateImageState}]]; //官方写法
-                    if (msg != null) {
-                        alert(msg)
-                    }
-                };
-            </script>
-
         </main>
     </div>
 </div>

@@ -103,12 +103,50 @@
         <!-- 侧边栏，代码复用（复用commons/commons.html里的） -->
         <div th:insert="~{commons/commons.html::siderbar(active='video.html')}"></div>
 
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <main style="padding-left: 19%;padding-top: 18px;width: 98%;" role="main" class="">
+            <!-- ml-sm-auto col-md-9 col-lg-10 pt-3 px-4 -->
 
-            <div class="table-responsive">
+            <div style="position:fixed; top:35px; left: 0px; margin-left: 19%; width:100%; height: 56px; background-color: white;">
+                <div style="float:left; margin-top: 15px; margin-left: 5px; margin-right: 10px; padding-bottom: 10px">
+                    <form th:action="@{/updateImage}" method="post" name="father" enctype="multipart/form-data">
+                        <button type="submit" id="updateButton" class="btn btn-sm btn-success"
+                                onclick="javascript:return updateImage();"> 更新
+                        </button>
+                    </form>
+                </div>
+                <div style="float:left; margin-top: 15px; margin-left: 5px; margin-right: 10px; padding-bottom: 10px">
+                    <a class="btn btn-sm btn-primary" th:href="@{/person/}+${videoId}">返回 </a>
+                </div>
+                <div style="float:left; margin-top: 15px; margin-left: 5px; margin-right: 40px; padding-bottom: 10px">
+                    <form th:action="@{/deleteImage}" method="post" enctype="multipart/form-data">
+                        <button type="submit" id="deleteButton" class="btn btn-sm btn-danger"
+                                onclick="javascript:return deleteImage();"> 删除
+                        </button>
+                    </form>
+                </div>
+                <div style="float:left; margin-top: 6px">
+                    <input id="start"
+                           style="margin-top: 15px; vertical-align:middle; text-align: center; width: 60px; height: 20px;"
+                           class="form-control" th:value="0">
+                </div>
+                <div style="float:left; margin-right: 15px; margin-top: 6px">
+                    <label style="float:left; margin-top: 15px; margin-right: 2px; margin-left: 2px;">-</label>
+                    <input id="end"
+                           style="margin-top:15px; vertical-align:middle; text-align: center; width: 60px; height: 20px;"
+                           class="form-control" th:value="0">
+                </div>
+                <div style="float:left; margin-top: 15px; margin-left: 5px; margin-right: 10px; padding-bottom: 10px">
+                    <button type="submit" id="selectButton" class="btn btn-sm btn-success"
+                            onclick="javascript:return selectImage();"> 选择
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive" style="margin-top: 35px;">
                 <table class="table table-striped table-sm">
                     <thead>
                     <tr align="center">
+                        <th>选择</th>
                         <th>序号</th>
                         <th>物体识别图</th>
                         <th>姿态检测图</th>
@@ -122,12 +160,20 @@
                         <th>是否举手</th>
                         <th>是否抬头听课</th>
                         <th>是否侧身</th>
-                        <th>删除</th>
-                        <th>编辑</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="image,itemStat:${images}">
+                        <input name="oldPlayPhoneExist" type="hidden" th:value="${image.isPlayPhoneExist()?1:0}">
+                        <input name="oldPlayLaptopExist" type="hidden" th:value="${image.isPlayLaptopExist()?1:0}">
+                        <input name="oldReadBookExist" type="hidden" th:value="${image.isReadBookExist()?1:0}">
+                        <input name="oldRaiseHandExist" type="hidden" th:value="${image.isRaiseHandExist()?1:0}">
+                        <input name="oldBowExist" type="hidden" th:value="${image.isBowExist()?1:0}">
+                        <input name="oldLeanExist" type="hidden" th:value="${image.isLeanExist()?1:0}">
+
+                        <td align="center" style="display:table-cell; vertical-align:middle">
+                            <input type="checkbox" name="checkbox" th:value="${image.getImageId()}">
+                        </td>
                         <td th:text="${itemStat.count}" align="center"
                             style="display:table-cell; vertical-align:middle"></td>
                         <td align="center" style="display:table-cell; vertical-align:middle">
@@ -148,34 +194,53 @@
                             style="display:table-cell; vertical-align:middle"></td>
                         <td th:text="${image.isBookExist()?'是':'-'}" align="center"
                             style="display:table-cell; vertical-align:middle"></td>
-                        <td th:text="${image.isPlayPhoneExist()?'是':'-'}" align="center"
-                            style="display:table-cell; vertical-align:middle"></td>
-                        <td th:text="${image.isPlayLaptopExist()?'是':'-'}" align="center"
-                            style="display:table-cell; vertical-align:middle"></td>
-                        <td th:text="${image.isReadBookExist()?'是':'-'}" align="center"
-                            style="display:table-cell; vertical-align:middle"></td>
-                        <td th:text="${image.isRaiseHandExist()?'是':'-'}" align="center"
-                            style="display:table-cell; vertical-align:middle"></td>
-                        <td th:text="${image.isBowExist()?'是':'-'}" align="center"
-                            style="display:table-cell; vertical-align:middle"></td>
-                        <td th:text="${image.isLeanExist()?'是':'-'}" align="center"
-                            style="display:table-cell; vertical-align:middle"></td>
+
                         <td align="center" style="display:table-cell; vertical-align:middle">
-                            <form th:action="@{/deleteImage}" method="post" enctype="multipart/form-data">
-                                <input name="imageId" class="form-control" type="hidden"
-                                       th:value="${image.getImageId()}">
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="javascript:return del();">
-                                    删除
-                                </button>
-                            </form>
+                            <select name="playPhoneExist">
+                                <option th:value="true" th:selected="${image.isPlayPhoneExist()}">是</option>
+                                <option th:value="false" th:selected="${not image.isPlayPhoneExist()}">-</option>
+                            </select>
                         </td>
                         <td align="center" style="display:table-cell; vertical-align:middle">
-                            <form th:action="@{/toUpdateImagePage}" method="post" enctype="multipart/form-data">
-                                <input name="imageId" class="form-control" type="hidden"
-                                       th:value="${image.getImageId()}">
-                                <button type="submit" class="btn btn-sm btn-primary">编辑</button>
-                            </form>
+                            <select name="playLaptopExist">
+                                <option th:value="true" th:selected="${image.isPlayLaptopExist()}">是</option>
+                                <option th:value="false" th:selected="${not image.isPlayLaptopExist()}">-</option>
+                            </select>
                         </td>
+                        <td align="center" style="display:table-cell; vertical-align:middle">
+                            <select name="readBookExist">
+                                <option th:value="true" th:selected="${image.isReadBookExist()}">是</option>
+                                <option th:value="false" th:selected="${not image.isReadBookExist()}">-</option>
+                            </select>
+                        </td>
+                        <td align="center" style="display:table-cell; vertical-align:middle">
+                            <select name="raiseHandExist">
+                                <option th:value="true" th:selected="${image.isRaiseHandExist()}">是</option>
+                                <option th:value="false" th:selected="${not image.isRaiseHandExist()}">-</option>
+                            </select>
+                        </td>
+                        <td align="center" style="display:table-cell; vertical-align:middle">
+                            <select name="bowExist">
+                                <option th:value="true" th:selected="${image.isBowExist()}">是</option>
+                                <option th:value="false" th:selected="${not image.isBowExist()}">-</option>
+                            </select>
+                        </td>
+                        <td align="center" style="display:table-cell; vertical-align:middle">
+                            <select name="leanExist">
+                                <option th:value="true" th:selected="${image.isLeanExist()}">是</option>
+                                <option th:value="false" th:selected="${not image.isLeanExist()}">-</option>
+                            </select>
+                        </td>
+
+<!--                        <td align="center" style="display:table-cell; vertical-align:middle">-->
+<!--                            <form th:action="@{/deleteImage}" method="post" enctype="multipart/form-data">-->
+<!--                                <input name="imageId" class="form-control" type="hidden"-->
+<!--                                       th:value="${image.getImageId()}">-->
+<!--                                <button type="submit" class="btn btn-sm btn-danger" onclick="javascript:return del();">-->
+<!--                                    删除-->
+<!--                                </button>-->
+<!--                            </form>-->
+<!--                        </td>-->
                     </tr>
                     </tbody>
                 </table>
@@ -184,16 +249,172 @@
             <script type="text/javascript" th:inline="javascript">
                 // th:inline="javascript" 必须写
                 onload = function () {
-                    var msg = [[${deleteImageState}]]; //官方写法
-                    if (msg != null) {
-                        alert(msg)
+                    var delete_msg = [[${deleteImageState}]]; //官方写法
+                    if (delete_msg != null) {
+                        alert(delete_msg);
+                    }
+
+                    var update_msg = [[${updateImageState}]]; //官方写法
+                    if (update_msg != null) {
+                        alert(update_msg);
                     }
                 };
             </script>
 
             <script type="text/javascript" th:inline="javascript">
-                function del() {
-                    var msg = "确定要删除吗？";
+                function deleteImage() {
+                    var num = 0;
+                    var imageIdList = document.getElementsByName("checkbox");
+                    var deleteButton = document.getElementById("deleteButton");
+
+                    var father = deleteButton.parentElement;
+                    for (let i = 0; i < imageIdList.length; i++) {
+                        let imageId = imageIdList[i];
+                        if (imageId.checked) {
+                            num++;
+                            let newInput = document.createElement("input"); // 创建一个input标签
+                            newInput.type = "hidden";
+                            newInput.name = "imageId";
+                            newInput.value = imageId.value;
+                            father.appendChild(newInput);
+                        }
+                    }
+
+                    var msg = "确定要删除选中的 " + num + " 条数据吗？";
+                    if (confirm(msg) == true) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+
+                function selectImage() {
+                    var start = parseInt(document.getElementById("start").value);
+                    var end = parseInt(document.getElementById("end").value);
+                    var checkboxList = document.getElementsByName("checkbox");
+                    if (start < 1) {
+                        alert("开始位置不能小于 1 ！");
+                        return false;
+                    } else if (end > checkboxList.length) {
+                        alert("结束位置不能大于条目数！");
+                        return false;
+                    } else if (start > end) {
+                        alert("开始位置不能大于结束位置！");
+                        return false;
+                    }
+                    var msg = "确定要选择 " + start + " - " + end + " 的图片吗？";
+                    if (confirm(msg) == true) {
+                        for (let i = start - 1; i < end; i++) {
+                            let checkbox = checkboxList[i];
+                            if (checkbox.checked) {
+                                checkbox.checked = false;
+                            } else {
+                                checkbox.checked = true;
+                            }
+
+                        }
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+
+                // 更新图片
+                function updateImage() {
+                    var num = 0;
+                    var imageIdList = document.getElementsByName("checkbox");
+                    var updateButton = document.getElementById("updateButton");
+
+                    var oldPlayPhoneExistList = document.getElementsByName("oldPlayPhoneExist");
+                    var oldPlayLaptopExistList = document.getElementsByName("oldPlayLaptopExist");
+                    var oldReadBookExistList = document.getElementsByName("oldReadBookExist");
+                    var oldRaiseHandExistList = document.getElementsByName("oldRaiseHandExist");
+                    var oldBowExistList = document.getElementsByName("oldBowExist");
+                    var oldLeanExistList = document.getElementsByName("oldLeanExist");
+
+                    var playPhoneExistList = document.getElementsByName("playPhoneExist");
+                    var playLaptopExistList = document.getElementsByName("playLaptopExist");
+                    var readBookExistList = document.getElementsByName("readBookExist");
+                    var raiseHandExistList = document.getElementsByName("raiseHandExist");
+                    var bowExistList = document.getElementsByName("bowExist");
+                    var leanExistList = document.getElementsByName("leanExist");
+
+                    var father = updateButton.parentElement;
+                    for (let i = 0; i < imageIdList.length; i++) {
+                        let imageId = imageIdList[i];
+                        if (imageId.checked) {
+                            num++;
+
+                            let newInput = document.createElement("input"); // 创建一个input标签
+                            newInput.type = "hidden";
+                            newInput.name = "imageIdList";
+                            newInput.value = imageId.value;
+                            father.appendChild(newInput);
+
+                            let oldPlayPhoneExist = document.createElement("input"); // 创建一个input标签
+                            oldPlayPhoneExist.type = "hidden";
+                            oldPlayPhoneExist.name = "oldPlayPhoneExistList";
+                            oldPlayPhoneExist.value = oldPlayPhoneExistList[i].value;
+                            father.appendChild(oldPlayPhoneExist);
+                            let oldPlayLaptopExist = document.createElement("input"); // 创建一个input标签
+                            oldPlayLaptopExist.type = "hidden";
+                            oldPlayLaptopExist.name = "oldPlayLaptopExistList";
+                            oldPlayLaptopExist.value = oldPlayLaptopExistList[i].value;
+                            father.appendChild(oldPlayLaptopExist);
+                            let oldReadBookExist = document.createElement("input"); // 创建一个input标签
+                            oldReadBookExist.type = "hidden";
+                            oldReadBookExist.name = "oldReadBookExistList";
+                            oldReadBookExist.value = oldReadBookExistList[i].value;
+                            father.appendChild(oldReadBookExist);
+                            let oldRaiseHandExist = document.createElement("input"); // 创建一个input标签
+                            oldRaiseHandExist.type = "hidden";
+                            oldRaiseHandExist.name = "oldRaiseHandExistList";
+                            oldRaiseHandExist.value = oldRaiseHandExistList[i].value;
+                            father.appendChild(oldRaiseHandExist);
+                            let oldBowExist = document.createElement("input"); // 创建一个input标签
+                            oldBowExist.type = "hidden";
+                            oldBowExist.name = "oldBowExistList";
+                            oldBowExist.value = oldBowExistList[i].value;
+                            father.appendChild(oldBowExist);
+                            let oldLeanExist = document.createElement("input"); // 创建一个input标签
+                            oldLeanExist.type = "hidden";
+                            oldLeanExist.name = "oldLeanExistList";
+                            oldLeanExist.value = oldLeanExistList[i].value;
+                            father.appendChild(oldLeanExist);
+
+                            let playPhoneExist = document.createElement("input"); // 创建一个input标签
+                            playPhoneExist.type = "hidden";
+                            playPhoneExist.name = "playPhoneExistList";
+                            playPhoneExist.value = playPhoneExistList[i].value;
+                            father.appendChild(playPhoneExist);
+                            let playLaptopExist = document.createElement("input"); // 创建一个input标签
+                            playLaptopExist.type = "hidden";
+                            playLaptopExist.name = "playLaptopExistList";
+                            playLaptopExist.value = playLaptopExistList[i].value;
+                            father.appendChild(playLaptopExist);
+                            let readBookExist = document.createElement("input"); // 创建一个input标签
+                            readBookExist.type = "hidden";
+                            readBookExist.name = "readBookExistList";
+                            readBookExist.value = readBookExistList[i].value;
+                            father.appendChild(readBookExist);
+                            let raiseHandExist = document.createElement("input"); // 创建一个input标签
+                            raiseHandExist.type = "hidden";
+                            raiseHandExist.name = "raiseHandExistList";
+                            raiseHandExist.value = raiseHandExistList[i].value;
+                            father.appendChild(raiseHandExist);
+                            let bowExist = document.createElement("input"); // 创建一个input标签
+                            bowExist.type = "hidden";
+                            bowExist.name = "bowExistList";
+                            bowExist.value = bowExistList[i].value;
+                            father.appendChild(bowExist);
+                            let leanExist = document.createElement("input"); // 创建一个input标签
+                            leanExist.type = "hidden";
+                            leanExist.name = "leanExistList";
+                            leanExist.value = leanExistList[i].value;
+                            father.appendChild(leanExist);
+                        }
+                    }
+                    var msg = "确定要更新选中的 " + num + " 条数据吗？";
                     if (confirm(msg) == true) {
                         return true;
                     } else {

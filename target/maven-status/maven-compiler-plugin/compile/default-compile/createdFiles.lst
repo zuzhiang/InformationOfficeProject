@@ -1,5 +1,6 @@
 com\ecnu\pojo\Student.class
 com\ecnu\config\SecurityConfig.class
+com\ecnu\controller\VisualController.class
 com\ecnu\utils\Utils$1.class
 com\ecnu\controller\ThreadController.class
 com\ecnu\config\LocaleResolverConfig.class
@@ -24,3 +25,4 @@ com\ecnu\config\SpringContextConfig.class
 com\ecnu\controller\ThreadController$1.class
 com\ecnu\utils\FileUtils.class
 com\ecnu\pojo\Image.class
+com\ecnu\pojo\Visual.class

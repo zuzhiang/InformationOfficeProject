@@ -49,7 +49,7 @@ public class UserController implements UserDetailsService {
     public String showUser(@PathVariable("state") String state, Model model) {
         Collection<User> users = userMapper.selectAllUser();
         model.addAttribute("users", users);
-        if (state.equals("1")){
+        if (state.equals("1")) {
             model.addAttribute("updateUserState", "更新用户成功！");
         }
         return "user/user";
@@ -82,7 +82,7 @@ public class UserController implements UserDetailsService {
                           @RequestParam("password2") String password2,
                           @RequestParam("role") String role, Model model) {
         username = username.trim();
-        if (username.length() == 0 || username == null || username == "" || username == " ") { // 用户名为空
+        if (username.length() == 0 || username == null || username.equals("")) { // 用户名为空
             model.addAttribute("addUserState", "用户名不能为空！");
         } else if (password1.equals(password2) == false) { // 如果两次密码不一致
             model.addAttribute("addUserState", "两次密码不一致！");

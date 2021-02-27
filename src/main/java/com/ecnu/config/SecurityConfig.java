@@ -47,6 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/toUpdatePersonPage/**").hasRole("ordinary")
                 .antMatchers("/updatePerson/**").hasRole("ordinary")
                 .antMatchers("/deletePerson/**").hasRole("ordinary")
+                .antMatchers("/mergePerson/**").hasRole("ordinary")
                 .antMatchers("/toUpdateImagePage/**").hasRole("ordinary")
                 .antMatchers("/updateImage/**").hasRole("ordinary")
                 .antMatchers("/deleteImage/**").hasRole("ordinary")

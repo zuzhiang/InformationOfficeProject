@@ -12,11 +12,15 @@ import java.util.List;
 @Mapper
 @Repository
 public interface StudentMapper {
+    // 查询所有学生
+    @Select("select * from student order by number asc")
+    List<Student> selectAllStudent();
+
     // 根据班级代号查询所有学生
     @Select("select * from student where unit=#{unit} order by number asc")
     List<Student> selectStudentByUnit(String unit);
 
     // 根据学号查询学生
-    @Select("select * from student where number=#{number}")
-    Student selectStudentByNumber(String number);
+    @Select("select * from student where number=#{number} and unit=#{unit}")
+    Student selectStudentByNumber(String number, String unit);
 }

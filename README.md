@@ -255,8 +255,19 @@ python /home/jchen/zuzhiang/FaceNet/face_rcgn.py /home/jchen/zuzhiang/results/fa
   - `video_id`：人物所属的视频编号
   - `number`：学号
   - `name`：姓名
+  - `investment`：投入度得分
+  - `divorce`：脱离度得分
+  - `listen`：听课得分
+  - `communication`：交流得分
+  - `play_phone_score`：玩手机得分
+  - `play_laptop_score`：玩电脑得分
+  - `read_book_score`：读书得分
+  - `raise_hand_score`：举手得分
+  - `bow_score`：抬头听课得分
+  - `lean_score`：侧身得分
   - `play_phone_num`：玩手机次数
   - `play_laptop_num`：玩电脑次数
+  - `read_book_num`：读书次数
   - `raise_hand_num`：举手次数
   - `bow_num`：抬头听课次数
   - `lean_num`：侧身次数
